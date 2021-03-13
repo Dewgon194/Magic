@@ -1,6 +1,6 @@
-main: com.westosia.<name>.Main
-name: <Name>
+main: com.westosia.magic.Main
+name: Magic
 version: ${project.version}
 api-version: 1.13
-author: <Author>
-description: <Description>
+author: Duggan
+description: Magic tomes to apply to a staff

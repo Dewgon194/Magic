@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.westosia</groupId>
-    <artifactId>Boilerplate</artifactId>
+    <artifactId>Magic</artifactId>
     <version>0.0.1</version>
 
     <repositories>
@@ -20,6 +20,12 @@
             <groupId>com.destroystokyo.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.15.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.westosia</groupId>
+            <artifactId>WestosiaAPI</artifactId>
+            <version>1.2.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
