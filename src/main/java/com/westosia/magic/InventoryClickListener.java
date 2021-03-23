@@ -15,8 +15,6 @@ public class InventoryClickListener implements Listener {
     public void setLore(List<String> lore, ItemStack item, String spellType) {
         lore.set(2, ChatColor.DARK_GRAY + "Spell = " + spellType);
         item.setLore(lore);
-
-
     }
 
     @EventHandler
@@ -75,9 +73,8 @@ public class InventoryClickListener implements Listener {
                         }
                     }
                 }
-
             }
-
         }
     }
+}
 }
