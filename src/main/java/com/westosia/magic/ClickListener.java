@@ -17,114 +17,96 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.List;
+
 public class ClickListener implements Listener {
     private final Main instance = Main.getInstance();
+
+    public int compassDir(float yaw) {
+        int compass;
+        if (yaw >= 45 && yaw <= 135) {
+            //compass = "W";
+            compass = 1;
+        } else if (yaw > -135 && yaw <= -45) {
+            //compass = "e";
+            compass = 2;
+        } else if (yaw > -45 && yaw <= 45) {
+            //compass = "S";
+            compass = 3;
+        } else if (yaw > 135 && yaw <= -135) {
+            //compass = "N";
+            compass = 4;
+        } else {
+            compass = 0;
+        }
+        return compass;
+    }
+
+    public void earthWall(Player player, float yaw, Block block, Material wall) {
+        for (double i = 0; i < 5; i++) {
+            Block rightBlock;
+            Location tempBlock = null;
+            Location blockLoc = block.getLocation();
+            int compassFacing = compassDir(yaw);
+            switch (compassFacing) {
+                case 1:
+                    rightBlock = blockLoc.add(0, 0, -2).getBlock();
+                    tempBlock = rightBlock.getLocation().add(-i, 0, 0);
+                    break;
+                case 2:
+                    rightBlock = blockLoc.add(0, 0, 2).getBlock();
+                    tempBlock = rightBlock.getLocation().add(i, 0, 0);
+                    break;
+                case 3:
+                    rightBlock = blockLoc.add(-2, 0, 0).getBlock();
+                    tempBlock = rightBlock.getLocation().add(0, 0, i);
+                    break;
+                case 4:
+                    rightBlock = blockLoc.add(0, 0, -2).getBlock();
+                    tempBlock = rightBlock.getLocation().add(0, 0, -i);
+                    break;
+            }
+            if (tempBlock != null && tempBlock.getBlock().getType() == Material.AIR) {
+                tempBlock.getBlock().setType(wall);
+                air(tempBlock);
+                if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
+                    tempBlock.getBlock().setType(wall);
+                    air(tempBlock);
+                }
+
+            }
+
+        }
+    }
 
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
         Player player = e.getPlayer();
         if (e.getAction() == (Action.RIGHT_CLICK_AIR) || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (e.getItem() != null && e.getItem().getType().equals(Material.WOODEN_SWORD) && e.getItem().hasItemMeta() && e.getItem().getItemMeta().getCustomModelData() >= 1 && e.getItem().getItemMeta().getCustomModelData() <= 2) {
-                if (e.getItem().getLore() != null && e.getItem().getLore().get(2).contains("FireBall")) {
-                    Location eyeLoc = player.getEyeLocation();
-                    Location loc = player.getLocation();
-                    Vector dir = loc.getDirection();
-                    Location frontLoc = eyeLoc.add(dir);
+                Location eyeLoc = player.getEyeLocation();
+                Location loc = player.getLocation();
+                Vector dir = loc.getDirection();
+                Location frontLoc = eyeLoc.add(dir);
+                Block block = frontLoc.add(dir.multiply(2)).getBlock();
+                float yaw = loc.getYaw();
+                List<String> itemLore = e.getItem().getLore();
+                if (itemLore != null && itemLore.get(2).contains("FireBall")) {
                     Entity fireball = player.getWorld().spawnEntity(frontLoc, EntityType.FIREBALL);
                     fireball.setVelocity(frontLoc.getDirection().multiply(2));
-                } else if (e.getItem().getLore() != null && e.getItem().getLore().get(2).contains("Magic Arrow")) {
-                    Location eyeLoc = player.getEyeLocation();
-                    Location loc = player.getLocation();
-                    Vector dir = loc.getDirection();
-                    Location frontLoc = eyeLoc.add(dir);
+                } else if (itemLore != null && itemLore.get(2).contains("Magic Arrow")) {
                     Entity fireball = player.getWorld().spawnEntity(frontLoc, EntityType.ARROW);
                     fireball.setVelocity(frontLoc.getDirection().multiply(2));
                     WestosiaAPI.getParticleEmitter().playParticle(frontLoc, Particle.BUBBLE_POP, 3);
-                } else if (e.getItem().getLore() != null && e.getItem().getLore().get(2).contains("Invisibility")) {
+                } else if (itemLore != null && itemLore.get(2).contains("Invisibility")) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 10, 1));
-                } else if (e.getItem().getLore() != null && e.getItem().getLore().get(2).contains("Earthen Wall")) {
-                    Location eyeLoc = player.getEyeLocation();
-                    Location loc = player.getLocation();
-                    Vector dir = loc.getDirection();
-                    Location frontLoc = eyeLoc.add(dir);
-                    Block block = frontLoc.add(dir.multiply(2)).getBlock();
-                    Float yaw = loc.getYaw();
-                    if (yaw >= 315 && yaw <= 45) {
-                        Block rightBlock = block.getLocation().add(2, 0, 0).getBlock();
-                        for (double i = 0; i < 5; i++) {
-                            Location tempBlock = rightBlock.getLocation().add(-i, 0, 0);
-                            if (tempBlock.getBlock().getType() == Material.AIR) {
-                                tempBlock.getBlock().setType(Material.DIRT);
-                                air(tempBlock);
-                                if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                    tempBlock.getBlock().setType(Material.DIRT);
-                                    air(tempBlock);
-                                }
-
-                            }
-
-                        }
-
-
-                    } else if (yaw > -135 && yaw <= -45) {
-                        Block rightBlock = block.getLocation().add(0, 0, 2).getBlock();
-                        player.sendMessage("1");
-                        for (double i = 0; i < 5; i++) {
-                            Location tempBlock = rightBlock.getLocation().add(0, 0, -i);
-                            if (tempBlock.getBlock().getType() == Material.AIR) {
-                                tempBlock.getBlock().setType(Material.DIRT);
-                                air(tempBlock);
-                                if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                    tempBlock.getBlock().setType(Material.DIRT);
-                                    air(tempBlock);
-                                }
-
-                            }
-
-                        }
-                    } else if (yaw > -45 && yaw <= 45) {
-                        Block rightBlock = block.getLocation().add(-2, 0, 0).getBlock();
-                        for (double i = 0; i < 5; i++) {
-                            Location tempBlock = rightBlock.getLocation().add(i, 0, 0);
-                            if (tempBlock.getBlock().getType() == Material.AIR) {
-                                tempBlock.getBlock().setType(Material.DIRT);
-                                air(tempBlock);
-                                if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                    tempBlock.getBlock().setType(Material.DIRT);
-                                    air(tempBlock);
-                                }
-
-                            }
-
-                        }
-                    } else if (yaw > -45 && yaw < 45) {
-                        Block rightBlock = block.getLocation().add(0, 0, -2).getBlock();
-                        for (double i = 0; i < 5; i++) {
-                            Location tempBlock = rightBlock.getLocation().add(0, 0, i);
-                            if (tempBlock.getBlock().getType() == Material.AIR) {
-                                tempBlock.getBlock().setType(Material.DIRT);
-                                air(tempBlock);
-                                if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                    tempBlock.getBlock().setType(Material.DIRT);
-                                    air(tempBlock);
-                                }
-
-                            }
-
-                        }
-                    }
-                } else if (e.getItem().getLore() != null && e.getItem().getLore().get(2).contains("Greater Fireball")) {
-                    Location eyeLoc = player.getEyeLocation();
-                    Location loc = player.getLocation();
-                    Vector dir = loc.getDirection();
-                    Location frontLoc = eyeLoc.add(dir);
+                } else if (itemLore != null && itemLore.get(2).contains("Earthen Wall")) {
+                    Material wall = Material.DIRT;
+                    earthWall(player, yaw, block, wall);
+                } else if (itemLore != null && itemLore.get(2).contains("Greater Fireball")) {
                     Entity dgfireball = player.getWorld().spawnEntity(frontLoc, EntityType.DRAGON_FIREBALL);
                     dgfireball.setVelocity(frontLoc.getDirection().multiply(2));
-                } else if (e.getItem().getLore() != null && e.getItem().getLore().get(2).contains("Infinite Magic Arrows")) {
-                    Location eyeLoc = player.getEyeLocation();
-                    Location loc = player.getLocation();
-                    Vector dir = loc.getDirection();
-                    Location frontLoc = eyeLoc.add(dir);
+                } else if (itemLore != null && itemLore.get(2).contains("Infinite Magic Arrows")) {
                     Entity arrow = player.getWorld().spawnEntity(frontLoc, EntityType.ARROW);
                     Entity arrow2 = player.getWorld().spawnEntity(frontLoc.add(0, 0.2, 0), EntityType.ARROW);
                     Entity arrow3 = player.getWorld().spawnEntity(frontLoc.add(0, 0.4, 0), EntityType.ARROW);
@@ -132,101 +114,13 @@ public class ClickListener implements Listener {
                     arrow2.setVelocity(frontLoc.getDirection().multiply(2));
                     arrow3.setVelocity(frontLoc.getDirection().multiply(2));
                     WestosiaAPI.getParticleEmitter().playParticle(frontLoc, Particle.BUBBLE_POP, 3);
-                } else if (e.getItem().getLore() != null && e.getItem().getLore().get(2).contains("Greater Invisibility")) {
+                } else if (itemLore != null && itemLore.get(2).contains("Greater Invisibility")) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 30, 1));
-                } else if (e.getItem().getLore() != null && e.getItem().getLore().get(2).contains("Mountainous Wall")) {
-                    Location eyeLoc = player.getEyeLocation();
-                    Location loc = player.getLocation();
-                    Vector dir = loc.getDirection();
-                    Location frontLoc = eyeLoc.add(dir);
-                    Block block = frontLoc.add(dir.multiply(2)).getBlock();
-                    Float yaw = loc.getYaw();
-                    if (yaw >= 135 || yaw <= -135) {
-                        Block rightBlock = block.getLocation().add(2, 0, 0).getBlock();
-                        for (double i = 0; i < 5; i++) {
-                            Location tempBlock = rightBlock.getLocation().add(-i, 0, 0);
-                            if (tempBlock.getBlock().getType() == Material.AIR) {
-                                tempBlock.getBlock().setType(Material.STONE);
-                                air(tempBlock);
-                                if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                    tempBlock.getBlock().setType(Material.STONE);
-                                    air(tempBlock);
-                                    if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                        tempBlock.getBlock().setType(Material.STONE);
-                                        air(tempBlock);
-                                    }
-
-                                }
-
-                            }
-
-
-                        }
-                    } else if (yaw > -135 || yaw <= -45) {
-                        Block rightBlock = block.getLocation().add(0, 0, 2).getBlock();
-                        for (double i = 0; i < 5; i++) {
-                            Location tempBlock = rightBlock.getLocation().add(0, 0, -i);
-                            if (tempBlock.getBlock().getType() == Material.AIR) {
-                                tempBlock.getBlock().setType(Material.STONE);
-                                air(tempBlock);
-                                if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                    tempBlock.getBlock().setType(Material.STONE);
-                                    air(tempBlock);
-                                    if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                        tempBlock.getBlock().setType(Material.STONE);
-                                        air(tempBlock);
-                                    }
-
-                                }
-
-                            }
-
-                        }
-                    } else if (yaw > 45 || yaw <= 135) {
-                        Block rightBlock = block.getLocation().add(-2, 0, 0).getBlock();
-                        for (double i = 0; i < 5; i++) {
-                            Location tempBlock = rightBlock.getLocation().add(i, 0, 0);
-                            if (tempBlock.getBlock().getType() == Material.AIR) {
-                                tempBlock.getBlock().setType(Material.STONE);
-                                air(tempBlock);
-                                if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                    tempBlock.getBlock().setType(Material.STONE);
-                                    air(tempBlock);
-                                    if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                        tempBlock.getBlock().setType(Material.STONE);
-                                        air(tempBlock);
-                                    }
-
-                                }
-
-                            }
-
-                        }
-                    } else if (yaw > -45 || yaw < 45) {
-                        Block rightBlock = block.getLocation().add(0, 0, -2).getBlock();
-                        for (double i = 0; i < 5; i++) {
-                            Location tempBlock = rightBlock.getLocation().add(0, 0, i);
-                            if (tempBlock.getBlock().getType() == Material.AIR) {
-                                tempBlock.getBlock().setType(Material.STONE);
-                                air(tempBlock);
-                                if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                    tempBlock.getBlock().setType(Material.STONE);
-                                    air(tempBlock);
-                                    if (tempBlock.add(0, 1, 0).getBlock().getType() == Material.AIR) {
-                                        tempBlock.getBlock().setType(Material.STONE);
-                                        air(tempBlock);
-                                    }
-
-                                }
-
-                            }
-
-                        }
-                    }
+                } else if (itemLore != null && itemLore.get(2).contains("Mountainous Wall")) {
+                    Material wall = Material.STONE;
+                    earthWall(player, yaw, block, wall);
                 }
-
             }
-
         }
     }
 
