@@ -77,4 +77,3 @@ public class InventoryClickListener implements Listener {
         }
     }
 }
-}
