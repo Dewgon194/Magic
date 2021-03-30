@@ -70,6 +70,8 @@ public class InventoryClickListener implements Listener {
                                 setLore(staffLore, staff, spellType);
                                 e.setCurrentItem(staff);
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }
